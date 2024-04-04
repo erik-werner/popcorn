@@ -1,0 +1,30 @@
+services:
+
+  popcorn_db:
+    image: postgres:latest
+    container_name: popcorn_db
+    environment:   # Set up postgres database name and password
+      POSTGRES_PASSWORD: popcornegott
+      POSTGRES_DB: popcorn
+      POSTGRES_USER: popcorn
+    networks:
+      - db_bridge
+    ports:
+      - 5432:5432
+  
+  app:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    container_name: popcorn_app
+    depends_on:
+      - popcorn_db
+    networks:
+      - db_bridge
+    ports:
+      - 8501:8501
+    command: streamlit run app.py
+
+networks:
+  db_bridge:
+    driver: bridge
