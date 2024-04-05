@@ -67,8 +67,8 @@ def add_event(user_uid: int, popcorn_id_1: str, popcorn_id_2: str, score: float,
     engine.dispose()
 
 
-def read_table() -> pd.DataFrame:
-    engine = setup_connection(host="popcorn_db")
+def read_table(host="localhost") -> pd.DataFrame:
+    engine = setup_connection(host=host)
     df = pd.read_sql_table("popcorn_events", engine)
     engine.dispose()
     return df
