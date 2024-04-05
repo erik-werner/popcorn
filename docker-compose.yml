@@ -12,19 +12,6 @@ services:
     ports:
       - 5432:5432
   
-  app:
-    build:
-      context: ./
-      dockerfile: ./Dockerfile
-    container_name: popcorn_app
-    depends_on:
-      - popcorn_db
-    networks:
-      - db_bridge
-    ports:
-      - 8501:8501
-    command: streamlit run app.py
-
 networks:
   db_bridge:
     driver: bridge
