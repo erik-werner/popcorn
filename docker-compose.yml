@@ -21,10 +21,10 @@ services:
     networks:
       - db_bridge
     ports:
-      - 8051:8051
+      - 8501:8501
     depends_on:
       - popcorn_db
-    command: gunicorn dash_app:server --bind 0.0.0.0:8051 --workers 4
+    command: gunicorn dash_app:server --bind 0.0.0.0:8501 --workers 4
 
 networks:
   db_bridge:
