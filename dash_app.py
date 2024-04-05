@@ -8,9 +8,9 @@ import re
 import numpy as np
 
 from utils import add_user, add_event
+import os
 
-
-DEBUG = True
+DEBUG = eval(os.getenv("DEBUG", "False"))
 host = "popcorn_db" if not DEBUG else "localhost"
 
 app = dash.Dash(
