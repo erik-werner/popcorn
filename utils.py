@@ -25,27 +25,27 @@ event_table = Table(
 
 
 def create_tables():
-    engine = setup_connection(host="popcorn_db")
+    engine = setup_connection(host="localhost")
     user_table.create(engine, checkfirst=True)
     event_table.create(engine, checkfirst=True)
     engine.dispose()
 
 
 def reset_tables():
-    engine = setup_connection(host="popcorn_db")
+    engine = setup_connection(host="localhost")
     user_table.drop(engine, checkfirst=True)
     event_table.drop(engine, checkfirst=True)
     create_tables()
     engine.dispose()
 
 
-def setup_connection(user='popcorn', password='popcornegott', host='popcorn_db'):
+def setup_connection(user='popcorn', password='popcornegott', host='localhost'):
     engine = create_engine(f"postgresql+psycopg2://{user}:{password}@{host}:5432/popcorn")
     return engine
 
 
 def add_user(user_uid: str) -> None:
-    engine = setup_connection(host="popcorn_db")
+    engine = setup_connection(host="localhost")
     with engine.connect() as conn:
         try:
             conn.execute(
@@ -58,7 +58,7 @@ def add_user(user_uid: str) -> None:
 
 
 def add_event(user_uid: int, popcorn_id_1: str, popcorn_id_2: str, score: float, timestamp: int) -> None:
-    engine = setup_connection(host="popcorn_db")
+    engine = setup_connection(host="localhost")
     with engine.connect() as conn:
         conn.execute(
             insert(event_table).values(user_uid=user_uid, popcorn_id_1=popcorn_id_1, popcorn_id_2=popcorn_id_2, score=score, timestamp=timestamp)
