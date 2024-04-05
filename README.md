@@ -4,7 +4,7 @@ Code for performing and analysing an experiment comparing different kinds of pop
 ## Run docker
 The following command starts up the database in the background
 
-`docker compose up -d`
+`docker compose up -d --build`
 
 Inspect database with 
 

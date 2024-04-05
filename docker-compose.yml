@@ -12,6 +12,20 @@ services:
     ports:
       - 5432:5432
   
+  popcorn_app:
+    image: popcorn_app
+    container_name: popcorn_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - db_bridge
+    ports:
+      - 8051:8051
+    depends_on:
+      - popcorn_db
+    command: gunicorn dash_app:server --bind 0.0.0.0:8051 --workers 4
+
 networks:
   db_bridge:
     driver: bridge
