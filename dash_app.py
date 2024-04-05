@@ -8,7 +8,10 @@ import re
 import numpy as np
 
 from utils import add_user, add_event
+import os
 
+DEBUG = eval(os.getenv("DEBUG", "False"))
+host = "popcorn_db" if not DEBUG else "localhost"
 
 app = dash.Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP]
@@ -38,10 +41,11 @@ login_modal = dbc.Modal(
 
 available_popcorn = np.arange(1, 11)
 
-popcorn_rater_widget = dbc.Card(
+popcorn_rater_widget = html.Div(
     [
-        dbc.CardHeader("Rejta Popcorn! 🍿"),
-        dbc.CardBody(
+        html.H2("Rejta Popcorn! 🍿"),
+        html.Hr(style={"padding-bottom": "3rem"}),
+        html.Div(
             [
                 dbc.Row(
                     [
@@ -60,7 +64,7 @@ popcorn_rater_widget = dbc.Card(
                             [
                                 dbc.Row(
                                     [
-                                        html.H5("Föreslå!", style={"text-align": "center"}),
+                                        html.H5("Föreslå!", style={"text-align": "center", "font-size": "1rem"}),
                                     ],
                                     justify="center",
                                 ),
@@ -87,7 +91,7 @@ popcorn_rater_widget = dbc.Card(
                         ),
                     ],
                     justify="center",
-                    style={"padding-left": "10%", "padding-right": "10%", "padding-bottom": "5rem"},
+                    style={"padding-bottom": "5rem"},
                 ),
                 dbc.Row(
                     [
@@ -99,22 +103,22 @@ popcorn_rater_widget = dbc.Card(
                                     max=2,
                                     value=0,
                                     marks={
-                                        -2: {"label": "Helt klart bäst", "style": {"font-size": "1rem"}}, 
-                                        -1: {"label": "Gillar mer", "style": {"font-size": "1rem"}}, 
-                                        0: {"label": "Lika bra", "style": {"font-size": "1rem"}}, 
-                                        1: {"label": "Gillar mer", "style": {"font-size": "1rem"}}, 
-                                        2: {"label": "Helt klart bäst", "style": {"font-size": "1rem"}}
+                                        -2: {"label": "+2", "style": {"font-size": "1rem"}}, 
+                                        -1: {"label": "+1", "style": {"font-size": "1rem"}}, 
+                                        0: {"label": "0", "style": {"font-size": "1rem"}}, 
+                                        1: {"label": "+1", "style": {"font-size": "1rem"}}, 
+                                        2: {"label": "+2", "style": {"font-size": "1rem"}}
                                     },
                                     step=0.001,
                                     included=False,
                                 ),
                             ],
                             width=9,
-                            style={"margin-left": "10%", "margin-right": "10%",},
+                            # style={"margin-left": "10%", "margin-right": "10%",},
                         ),
                     ],
                     justify="center",
-                    style={"padding-left": "10%", "padding-right": "10%", "padding-bottom": "5rem"},
+                    style={"padding-bottom": "5rem"},
                 ),
                 dbc.Row(
                     [
@@ -156,7 +160,7 @@ app.layout = dbc.Container(
 def login(n_clicks, n_submit, username, pattern):
     if (n_clicks or n_submit) and username:
         if re.match(pattern, username):
-            add_user(username)
+            add_user(username, host=host)
             return False, False, True
         else:
             return True, True, False
@@ -183,7 +187,7 @@ def set_input_states(suggest_clicks, add_clicks, popcorn_1, popcorn_2, score, us
         return popcorn_id_1, popcorn_id_2, no_update
     elif ctx.triggered_id == "add-score":
         if popcorn_1 and popcorn_2 and score:
-            add_event(user_id, popcorn_1, popcorn_2, score, int(datetime.now().timestamp()))
+            add_event(user_id, popcorn_1, popcorn_2, score, int(datetime.now().timestamp()), host=host)
             return None, None, 0
         else:
             return no_update, no_update, no_update
