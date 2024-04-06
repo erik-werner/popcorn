@@ -49,6 +49,23 @@ popcorn_rater_widget = html.Div(
             [
                 dbc.Row(
                     [
+                        dbc.Row(
+                            [
+                                html.H5("Klicka här för att föreslå ny matchning av popcorn", style={"text-align": "center", "font-size": "1rem"}),
+                            ],
+                            justify="start",
+                        ),
+                        dbc.Row(
+                            [
+                                dbc.Button("Föreslå", id="suggest-popcorn", color="primary", 
+                                            style={"margin-bottom": "2rem", "margin-top": "1rem"}),
+                            ],
+                            justify="start",
+                        ),
+                    ],
+                    justify="start",),
+                dbc.Row(
+                    [
                         dbc.Col(
                             [
                                 html.H5("Popcorn 1", style={"text-align": "center"}),
@@ -58,25 +75,7 @@ popcorn_rater_widget = html.Div(
                                     id="popcorn-1",
                                 ),
                             ],
-                            width=4,
-                        ),
-                        dbc.Col(
-                            [
-                                dbc.Row(
-                                    [
-                                        html.H5("Föreslå!", style={"text-align": "center", "font-size": "1rem"}),
-                                    ],
-                                    justify="center",
-                                ),
-                                dbc.Row(
-                                    [
-                                        dbc.Button("🍿", id="suggest-popcorn", color="secondary", 
-                                                   style={"font-size": "1.5rem", "max-width": "50px", "max-height": "50px"}),
-                                    ],
-                                    justify="center",
-                                ),
-                            ],
-                            width=2,
+                            width=5,
                         ),
                         dbc.Col(
                             [
@@ -87,11 +86,23 @@ popcorn_rater_widget = html.Div(
                                     id="popcorn-2",
                                 ),
                             ],
-                            width={"size": 4, "offset": 0},
+                            width={"size": 5, "offset": 1},
                         ),
                     ],
                     justify="center",
                     style={"padding-bottom": "5rem"},
+                ),
+                dbc.Row(
+                    [
+                        html.H5("Välj betyg", style={"text-align": "left"}),
+                    ],
+                    justify="start",
+                ),
+                dbc.Row(
+                    [
+                        html.P(["Dra betyget mot den sida vars popcorn du föredrar."], style={"text-align": "left", "margin-bottom": "2.5rem", "font-size": "0.75rem"}),
+                    ],
+                    justify="start",
                 ),
                 dbc.Row(
                     [
@@ -103,18 +114,19 @@ popcorn_rater_widget = html.Div(
                                     max=2,
                                     value=0,
                                     marks={
-                                        -2: {"label": "+2", "style": {"font-size": "1rem"}}, 
-                                        -1: {"label": "+1", "style": {"font-size": "1rem"}}, 
-                                        0: {"label": "0", "style": {"font-size": "1rem"}}, 
-                                        1: {"label": "+1", "style": {"font-size": "1rem"}}, 
-                                        2: {"label": "+2", "style": {"font-size": "1rem"}}
+                                        -2: {"label": "+2", "style": {"font-size": "0.75rem"}}, 
+                                        -1: {"label": "+1", "style": {"font-size": "0.75rem"}}, 
+                                        0: {"label": "0", "style": {"font-size": "0.75rem"}}, 
+                                        1: {"label": "+1", "style": {"font-size": "0.75rem"}}, 
+                                        2: {"label": "+2", "style": {"font-size": "0.75rem"}}
                                     },
+                                    # tooltip={"placement": "top", "always_visible": True},
                                     step=0.001,
                                     included=False,
                                 ),
                             ],
                             width=9,
-                            # style={"margin-left": "10%", "margin-right": "10%",},
+                            style={"transform": "scale(1.5)"},
                         ),
                     ],
                     justify="center",
@@ -146,6 +158,12 @@ app.layout = dbc.Container(
     className="p-5",
 )
 
+# Functions
+def suggest_popcorn(method="random"):
+    popcorn_id_1 = np.random.choice(available_popcorn)
+    popcorn_id_2 = np.random.choice(list(set(available_popcorn) - {popcorn_id_1}))
+    return popcorn_id_1, popcorn_id_2
+
 # Callbacks
 @app.callback(
     Output("login-modal", "is_open"),
@@ -160,7 +178,7 @@ app.layout = dbc.Container(
 def login(n_clicks, n_submit, username, pattern):
     if (n_clicks or n_submit) and username:
         if re.match(pattern, username):
-            add_user(username, host=host)
+            add_user(username.upper(), host=host)
             return False, False, True
         else:
             return True, True, False
@@ -177,14 +195,17 @@ def login(n_clicks, n_submit, username, pattern):
      State("popcorn-1", "value"),
      State("popcorn-2", "value"),
      State("popcorn-score", "value"),
-        State("username", "value")],
-    prevent_initial_call=True,
+     State("username", "value")],
+    prevent_initial_call=False,
 )
 def set_input_states(suggest_clicks, add_clicks, popcorn_1, popcorn_2, score, user_id):
+    # if intial state, do nothing
+    if ctx.triggered[0]["prop_id"] == ".":
+        popcorn_id_1, popcorn_id_2 = suggest_popcorn()
+        return popcorn_id_1, popcorn_id_2, 0
     if ctx.triggered_id == "suggest-popcorn":
-        popcorn_id_1 = np.random.choice(available_popcorn)
-        popcorn_id_2 = np.random.choice(list(set(available_popcorn) - {popcorn_id_1}))
-        return popcorn_id_1, popcorn_id_2, no_update
+        popcorn_id_1, popcorn_id_2 = suggest_popcorn()
+        return popcorn_id_1, popcorn_id_2, 0
     elif ctx.triggered_id == "add-score":
         if popcorn_1 and popcorn_2 and score:
             add_event(user_id, popcorn_1, popcorn_2, score, int(datetime.now().timestamp()), host=host)
