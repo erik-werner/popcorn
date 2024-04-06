@@ -12,7 +12,7 @@ from bayes import get_next_pair
 import os
 
 DEBUG = eval(os.getenv("DEBUG", "False"))
-host = "popcorn_db" if not DEBUG else "localhost"
+host = "localhost"# "popcorn_db" if not DEBUG else "localhost"
 
 app = dash.Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP]
