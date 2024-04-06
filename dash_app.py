@@ -39,7 +39,7 @@ login_modal = dbc.Modal(
     backdrop="static",
 )
 
-available_popcorn = np.arange(1, 11)
+available_popcorn = np.arange(1, 9)
 
 popcorn_rater_widget = html.Div(
     [
