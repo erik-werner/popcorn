@@ -8,6 +8,7 @@ import re
 import numpy as np
 
 from utils import add_user, add_event
+from bayes import get_next_pair
 import os
 
 DEBUG = eval(os.getenv("DEBUG", "False"))
@@ -159,10 +160,13 @@ app.layout = dbc.Container(
 )
 
 # Functions
-def suggest_popcorn(method="random"):
-    popcorn_id_1 = np.random.choice(available_popcorn)
-    popcorn_id_2 = np.random.choice(list(set(available_popcorn) - {popcorn_id_1}))
-    return popcorn_id_1, popcorn_id_2
+def suggest_popcorn(user_id, method="random"):
+    if method == "random":
+        popcorn_id_1 = np.random.choice(available_popcorn)
+        popcorn_id_2 = np.random.choice(list(set(available_popcorn) - {popcorn_id_1}))
+        return popcorn_id_1, popcorn_id_2
+    else:
+        get_next_pair(user_id)
 
 # Callbacks
 @app.callback(
@@ -201,10 +205,13 @@ def login(n_clicks, n_submit, username, pattern):
 def set_input_states(suggest_clicks, add_clicks, popcorn_1, popcorn_2, score, user_id):
     # if intial state, do nothing
     if ctx.triggered[0]["prop_id"] == ".":
-        popcorn_id_1, popcorn_id_2 = suggest_popcorn()
+        popcorn_id_1, popcorn_id_2 = suggest_popcorn(None, method="random")
         return popcorn_id_1, popcorn_id_2, 0
     if ctx.triggered_id == "suggest-popcorn":
-        popcorn_id_1, popcorn_id_2 = suggest_popcorn()
+        try:
+            popcorn_id_1, popcorn_id_2 = suggest_popcorn(user_id, method="bayes")
+        except:
+            popcorn_id_1, popcorn_id_2 = suggest_popcorn(None, method="random")
         return popcorn_id_1, popcorn_id_2, 0
     elif ctx.triggered_id == "add-score":
         if popcorn_1 and popcorn_2 and score:
